@@ -20,7 +20,7 @@ mm_function - function(x, y, beta0 = c(0,0), tol = 1e-6, max_iter = 100) {
     ## Majorization
     ###############################################################
     
-    objective[iter] = - 1 / p * sum(pi) + sum(y * x %*% theta)) 
+    objective[iter] = - 1 / p * sum(pi) + sum(y * x %*% theta)
     
     ###############################################################
     ## Minimization
