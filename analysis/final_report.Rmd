@@ -1,0 +1,75 @@
+---
+title: "final_report"
+author: "Danlu Zhang"
+date: "2025-02-17"
+output: pdf_document
+---
+
+## Algorithms for logistic regression 
+
+For a given subject in a study, we are interested in modeling $\pi_i = P(Y_i = 1|X_i = x_i)$, where $Y_i \in \{0, 1\}$. The logistic regression model takes the form
+
+<br>
+
+$$\text{logit}(\pi_i) = \log \left(\frac{\pi_i}{1-\pi_i}\right) = \log\left({\frac{P(Y_i = 1|X_i)}{1-P(Y_i = 1|X_i)}}\right) = \beta_0 + \beta_1X_{1i} + \beta_2X_{2i} + \ldots + \beta_pX_{pi}$$
+
+* $Y_1, Y_2,\ldots, Y_n \sim Bernoulli(\pi)$ 
+* PDF is $f(y_i; \pi) = \pi^{y_i}(1-\pi)^{1-y_i}$
+
+### Problem 1: Newton's method
+
+
+- Derive likelihood, gradient, and Hessian for logistic regression for an arbitrary number of predictors $p$
+
+The likelihood is $L(\beta) = \prod_{i=1}^n \pi^{y_i}(1-\pi)^{1-y_i}$ and the log-likelihood is $\ell(\beta) = \sum_{i=1}^n [y_i \log \pi_i + (1 - y_i) \log(1-\pi_i)] \\$
+Since $\pi_i = P(Y_i = 1|X_i = x_i) = \frac{e^{\eta_i}}{1 + e^{\eta_i}}$ where $\eta_i = X_i \beta$, $\ell(\beta) = \sum_{i=1}^n [y_i \eta_i - \log(1 + e^{\eta_i})]$. $X_i$ is the $i^{th}$ row in design matrix $X_{n \times (p+1)}$ and $\beta = (\beta_0, \beta_1, ..., \beta_p)^T \\$
+
+Gradient: $$\frac{\partial \ell(\beta)}{\partial \beta_j} = \sum_{i=1}^n [y_i \frac{\partial \eta_i}{\partial \beta_j} - \pi_i \frac{\partial \eta_i}{\partial \beta_j}] = \sum_{i=1}^n X_{ij} (y_i - \pi_i)$$
+$$\nabla \ell(\beta) = X^T(Y - \pi)$$ where $\pi = (\pi_1, ..., \pi_n) \\$
+
+Hessian: $$\frac{\partial^2 \ell(\beta)}{\partial \beta_j \partial \beta_k} = \sum_{i=1}^n - X_{ij} \frac{\partial \pi_i}{\partial \eta_i} \frac{\partial \eta_i}{\partial \beta_k} = - \sum_{i=1}^n X_{ij} X_{ik} \pi_i (1 - \pi_i)$$
+$$H = - X^T W X$$ where $W$ is a diagonal matrix $W_{ii} = \pi_i (1 - \pi_i) \\$ 
+
+
+- What is the Newton's method update for $\beta$ for logistic regression?
+$$\beta_{t+1} = \beta_t - H^{-1} \nabla \ell(\beta) = \beta_t + (X^T W X)^{-1} X^T(Y - \pi)$$
+
+- Is logistic regression a convex optimization problem? Why or why not? $\\$
+Logistic regression is a convex optimization problem. Since $W$ is semi-positive, $H \le 0$ indicating that $\ell(\beta)$ is a concave function. Because $-\ell(\beta)$ is convex, this is convex optimization problem.
+
+
+### Problem 2: MM
+
+(A) In constructing a minorizing function, first prove the inequality
+
+$$-\log\{1 + \exp{X_i^T\theta}\} \ge -\log\{1 + \exp(X_i^T\theta^{(k)})\} - \frac{\exp(X_i^T\theta) - \exp(X_i^T\theta^{(k)})}{1 + \exp(X_i^T\theta^{(k)})}$$
+with equality when $\theta = \theta^{(k)}$. This eliminates the log terms. $\\$
+
+Let $f(\theta) = 1 + e^{ X_i^T\theta} \\$
+By the supporting hyperplane property, when $f(\theta)$ is convex and the convecity of $-\log()$, we have $$-\log(y) \ge -\log(x) - x^{-1} (y - x) \Rightarrow -\log(f(\theta)) \ge -\log(f(\theta^{(k)})) - f(\theta^{(k)})^{-1} (f(\theta) - f(\theta^{(k)}))$$
+
+Then $$-\log\{1 + \exp{X_i^T\theta}\} \ge -\log\{1 + \exp(X_i^T\theta^{(k)})\} - \frac{\exp(X_i^T\theta) - \exp(X_i^T\theta^{(k)})}{1 + \exp(X_i^T\theta^{(k)})}$$ and the equality holds when $\theta = \theta^{(k)}$.
+
+
+(B) Now apply the arithmetic-geometric mean inequality to the exponential function $\exp(X_i^T\theta)$ to separate the parameters. Assuming that $\theta$ has $p$ components and that there are $n$ observations, show that these maneuvers lead to a minorizing function
+
+$$g(\theta|\theta^{(k)}) = -\frac{1}{p}\sum_{i = 1}^n \frac{\exp(X_i^T\theta^{(k)})}{1 + \exp(X_i^T\theta^{(k)})}\sum_{j = 1}^p\exp\{pX_{ij}(\theta_j-\theta_j^{(k)})\} + \sum_{i = 1}^nY_iX_i^T\theta = 0$$
+
+up to a constant that does not depend on $\theta$.
+
+
+By arithmetic-geometric mean inequality, we have $\exp(X_i^T\theta) \le \frac{1}{p} \sum_{j = 1}^p \exp(pX_{ij}\theta_j)$ then we have $$\frac{\exp(X_i^T\theta)}{1 + \exp(X_i^T\theta)} \le \frac{1}{p} \sum_{j = 1}^p \frac{\exp(pX_{ij}\theta_j)}{1 + \exp(pX_{ij}\theta_j)}$$
+
+Hence, $$g(\theta|\theta^{(k)}) = $$
+
+
+(C) Finally, prove that maximizing $g(\theta|\theta^{(k)})$ consists of solving the equation
+
+$$ -\sum_{i = 1}^n \frac{\exp(X_i^T\theta^{(k)})X_{ij}\exp(-pX_{ij}\theta_j^{(k)})}{1 + \exp(X_i^T\theta^{(k)})}\exp(pX_{ij}\theta_j) + \sum_{i = 1}^nY_iX_{ij} = 0$$ for each $j$.
+
+
+$$\frac{\partial g(\theta|\theta^{(k)})}{\partial \theta_j} = -\frac{1}{p}\sum_{i = 1}^n \frac{\exp(X_i^T\theta^{(k)})}{1 + \exp(X_i^T\theta^{(k)})} p X_{ij} \exp(p X_{ij} (\theta_j - \theta_j^{(k)})) + \sum_{i=1}^nY_i X_{ij} $$
+$$\frac{\partial g(\theta|\theta^{(k)})}{\partial \theta_j} = -\sum_{i = 1}^n \frac{\exp(X_i^T\theta^{(k)})X_{ij}\exp(-pX_{ij}\theta_j^{(k)})}{1 + \exp(X_i^T\theta^{(k)})}\exp(pX_{ij}\theta_j) + \sum_{i = 1}^nY_iX_{ij}$$
+To maximizing $g(\theta|\theta^{(k)})$, we need to solve above equation for each $j$.
+
+### Problem 3: simulation
