@@ -1,5 +1,8 @@
-mm_function - function(x, y, beta0 = c(0,0), tol = 1e-6, max_iter = 100) {
+library(tictoc)
+
+mm_function = function(x, y, beta0 = c(0,0), tol = 1e-6, max_iter = 100) {
   
+  tic()
   iter = 1
   tol_criteria = Inf
   
@@ -11,6 +14,8 @@ mm_function - function(x, y, beta0 = c(0,0), tol = 1e-6, max_iter = 100) {
   ## Add initial value
   theta0 = c(1, 1)
   theta = theta0
+  
+  x = cbind(1, x)
   
   while(iter < max_iter  & tol_criteria > tol){
     
@@ -49,9 +54,10 @@ mm_function - function(x, y, beta0 = c(0,0), tol = 1e-6, max_iter = 100) {
   
   return(list(solution = theta, 
               se = se,
-              theta_history = theta_vec,
+              beta_history = theta_vec,
               objective = objective,
               converged = (iter < max_iter),
-              niter = iter)) 
+              niter = iter, 
+              time = toc(quiet = T)$callback_msg)) 
   
 }  

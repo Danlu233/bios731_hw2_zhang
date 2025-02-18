@@ -1,8 +1,13 @@
+library(tictoc)
+
 newton_function = function(x, y, beta0 = c(0,0), tol = 1e-6, max_iter = 100) {
   
+  tic()
   beta_cur = beta0
   beta_history = gradient_vec = matrix(NA, nrow = max_iter, 
                                        ncol = length(beta0))
+  
+  x = cbind(1,x)
   for (iter in 1:max_iter) {
     
     # store results
@@ -35,6 +40,7 @@ newton_function = function(x, y, beta0 = c(0,0), tol = 1e-6, max_iter = 100) {
               beta_history = beta_history,
               gradient = gradient_vec,
               converged = (iter < max_iter),
-              niter = iter)) 
+              niter = iter, 
+              time = toc(quiet = T)$callback_msg)) 
   
 }

@@ -58,9 +58,9 @@ $$g(\theta|\theta^{(k)}) = -\frac{1}{p}\sum_{i = 1}^n \frac{\exp(X_i^T\theta^{(k
 up to a constant that does not depend on $\theta$.
 
 
-By arithmetic-geometric mean inequality, we have $\exp(X_i^T\theta) \le \frac{1}{p} \sum_{j = 1}^p \exp(pX_{ij}\theta_j)$ then we have $$\frac{\exp(X_i^T\theta)}{1 + \exp(X_i^T\theta)} \le \frac{1}{p} \sum_{j = 1}^p \frac{\exp(pX_{ij}\theta_j)}{1 + \exp(pX_{ij}\theta_j)}$$
+By arithmetic-geometric mean inequality, we have $\exp(X_i^T\theta) \le \frac{1}{p} \sum_{j = 1}^p \exp(pX_{ij}\theta_j)$ then we replace $\exp(X_i^T\theta)$ in the inequality by $\frac{1}{p} \sum_{j = 1}^p \exp(pX_{ij}\theta_j)$.
 
-Hence, $$g(\theta|\theta^{(k)}) = $$
+Hence, $$\frac{\exp(X_i^T\theta) - \exp(X_i^T\theta^{(k)})}{1 + \exp(X_i^T\theta^{(k)})} \le \frac{\frac{1}{p} \sum_{j = 1}^p \exp(pX_{ij}\theta_j) - \exp(X_i^T\theta^{(k)})}{1 + \exp(X_i^T\theta^{(k)})} = \frac{1}{p} \sum_{j = 1}^p \frac{ \exp(X_i^T\theta^{(k)})}{1 + \exp(X_i^T\theta^{(k)})}(\frac{\exp(pX_{ij} \theta_j)}{\exp(X_i^T\theta^{(k)})} - 1)$$ then we have $$g(\theta|\theta^{(k)}) = -\frac{1}{p}\sum_{i = 1}^n \frac{\exp(X_i^T\theta^{(k)})}{1 + \exp(X_i^T\theta^{(k)})}\sum_{j = 1}^p\exp\{pX_{ij}(\theta_j-\theta_j^{(k)})\} + \sum_{i = 1}^nY_iX_i^T\theta = 0$$
 
 
 (C) Finally, prove that maximizing $g(\theta|\theta^{(k)})$ consists of solving the equation
@@ -73,3 +73,27 @@ $$\frac{\partial g(\theta|\theta^{(k)})}{\partial \theta_j} = -\sum_{i = 1}^n \f
 To maximizing $g(\theta|\theta^{(k)})$, we need to solve above equation for each $j$.
 
 ### Problem 3: simulation
+
+
+
+## Problem 4: EM algorithm for censored exponential data
+
+* Derive an EM algorithm to estimate the parameter $\lambda$.  Show your derivation here and report updates for the **E-step** and **M-Step**. $\\$
+
+**E-step** $\\$
+$P(t_i| \lambda) = \frac{1}{\lambda} \exp(-\frac{t_i}{\lambda})$ where $t_i = \delta_i y_i + (1 - \delta_i) z_i$ then we have $P(y_i, t_i | \theta) = \frac{1}{\lambda} \exp(-(\delta_i y_i + (1 - \delta_i) z_i)/\lambda) \\$
+
+$\log P(y,t | \theta) = \sum_{i=1}^n [-\log(\lambda) - \frac{1}{\lambda} (\delta_i y_i + (1 - \delta_i) z_i)] = -n \log(\lambda) - \frac{1}{\lambda} \sum_{i=1}^n (\delta_i y_i + (1 - \delta_i) z_i) \\$
+
+The expected log-likelihood is $$Q(\lambda | \lambda^{(k)}) = E_{z_i} [-n \log(\lambda) - \frac{1}{\lambda} \sum_{i=1}^n (\delta_i y_i + (1 - \delta_i) z_i)] = -n \log(\lambda) - \frac{1}{\lambda} \sum_{i=1}^n (\delta_i y_i + (1 - \delta_i)E(z_i))$$ 
+
+where $E(z_i) = y_i + \lambda^{(k)}$. Hence 
+
+$$Q(\lambda | \lambda^{(k)}) = -n \log(\lambda) - \frac{1}{\lambda} \sum_{i=1}^n (\delta_i y_i + (1 - \delta_i)(y_i + \lambda^{(k)}))$$
+
+**M-step**
+
+$$\frac{dQ(\lambda | \lambda^{(k)})}{d \lambda} = -\frac{n}{\lambda} + \frac{1}{\lambda^2} \sum_{i=1}^n (\delta_i y_i + (1 - \delta_i)(y_i + \lambda^{(k)}))$$
+
+Setting $\frac{dQ(\lambda | \lambda^{(k)})}{d \lambda} = 0$ we have 
+$$\lambda^{(k+1)} = \frac{\sum_{i=1}^n (\delta_i y_i + (1 - \delta_i)(y_i + \lambda^{(k)}))}{n}$$
